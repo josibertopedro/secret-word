@@ -18,6 +18,8 @@ const stages = [
   { id: 3, name: "end" },
 ];
 
+const guessesQty = 3
+
 function App() {
   const [gameStage, setGameStage] = useState(stages[0].name);
 
@@ -51,10 +53,10 @@ const [guessedLetters,setGuessedLetters] =useState([]);
 const [wrongLettters,setWrongLettters] = useState([])
 
 //tentaivas do usuario
-const [guesses,setGuesse] = useState(3);
+const [guesses,setGuesse] = useState(guessesQty);
 
 //pontuação
-const [score,setScore] = useState(0)
+const [score,setScore] = useState(50)
 
 //start secret word jogo
 const starGame =()=>{
@@ -80,10 +82,56 @@ setLetters(wordLetters);
 
 //process the letter input
 const verifyLetter = (letter) => {
- console.log(letter)
+
+const normalizedLetter = letter.toLowerCase()
+//check if letter has alread been ulitized (se ja foi ultilizada)
+
+if(guessedLetters.includes(normalizedLetter)||
+ wrongLettters.includes(normalizedLetter)){
+  return;
+ }
+// push guessed letter or remove a guess(vicluir as letras)
+if(letters.includes(normalizedLetter)){
+setGuessedLetters((actualGuessedLettes)=>[
+  ...actualGuessedLettes,
+  normalizedLetter
+])
+}else{
+  setWrongLettters((actualWrongletters)=>[
+    ...actualWrongletters,
+    normalizedLetter
+  ])
+
+  setGuesse((actualuesses) => actualuesses -1)
 }
+console.log(guessedLetters)
+console.log(wrongLettters)
+ console.log(letter)
+};
+
+const clearLetterStates = () =>{
+setGuessedLetters([]);
+setWrongLettters([]);
+
+}
+
+useEffect(()=>{
+if(guesses <=0){
+
+//reset all states(zera o game)
+clearLetterStates() //limpa os states das letras
+
+
+setGameStage(stages[2].name)
+}
+
+},[guesses])
+ 
 //restarts teh game
 const retry = () => {
+
+  setScore(0);
+  setGuesse(guessesQty);
   setGameStage(stages[0].name)
 }
 
@@ -99,7 +147,7 @@ const retry = () => {
         wrongLettters={wrongLettters}
         guesses={guesses}
         score={score}/>}
-     {gameStage === 'end' && <GameOver retry ={retry}/>}
+     {gameStage === 'end' && <GameOver retry ={retry} score={score}/>}
     </div>
   );
 }
